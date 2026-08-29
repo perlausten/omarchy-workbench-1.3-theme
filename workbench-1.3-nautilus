@@ -4,6 +4,18 @@
 
 THEME="${1:-}"
 THEME_SLUG="workbench-1.3"
+
+should_restore() {
+  local dest="${1:-}"
+  case "$dest" in
+    workbench-*)
+      [[ "$THEME_SLUG" < "$dest" ]]
+      ;;
+    *)
+      return 0
+      ;;
+  esac
+}
 SRC="$HOME/.config/omarchy/themes/$THEME_SLUG"
 GTK4_DIR="$HOME/.config/gtk-4.0"
 GTK3_DIR="$HOME/.config/gtk-3.0"
@@ -95,6 +107,6 @@ restore_gtk() {
 
 if [[ $THEME == "$THEME_SLUG" ]]; then
   apply_gtk
-else
+elif should_restore "$THEME"; then
   restore_gtk
 fi

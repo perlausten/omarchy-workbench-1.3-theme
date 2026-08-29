@@ -3,6 +3,18 @@
 
 THEME="${1:-}"
 THEME_SLUG="workbench-1.3"
+
+should_restore() {
+  local dest="${1:-}"
+  case "$dest" in
+    workbench-*)
+      [[ "$THEME_SLUG" < "$dest" ]]
+      ;;
+    *)
+      return 0
+      ;;
+  esac
+}
 SRC="$HOME/.config/omarchy/themes/$THEME_SLUG/starship.toml"
 DEST="$HOME/.config/starship.toml"
 BACKUP="${XDG_STATE_HOME:-$HOME/.local/state}/omarchy/workbench-1.3-starship.toml.bak"
@@ -19,7 +31,7 @@ if [[ $THEME == "$THEME_SLUG" ]]; then
     cp "$DEST" "$BACKUP"
   fi
   cp "$SRC" "$DEST"
-else
+elif should_restore "$THEME"; then
   if [[ -f $BACKUP ]]; then
     mv "$BACKUP" "$DEST"
   elif ours; then

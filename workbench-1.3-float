@@ -4,6 +4,18 @@
 
 THEME="${1:-}"
 THEME_SLUG="workbench-1.3"
+
+should_restore() {
+  local dest="${1:-}"
+  case "$dest" in
+    workbench-*)
+      [[ "$THEME_SLUG" < "$dest" ]]
+      ;;
+    *)
+      return 0
+      ;;
+  esac
+}
 TAG="wb13-float"
 
 float_tiled() {
@@ -86,6 +98,6 @@ PY
 
 if [[ $THEME == "$THEME_SLUG" ]]; then
   float_tiled
-else
+elif should_restore "$THEME"; then
   tile_restored
 fi

@@ -6,6 +6,18 @@ THEME="${1:-}"
 TOPAZ="Topaz Unicode KS13"
 TOPAZ_SIZE=16
 THEME_SLUG="workbench-1.3"
+
+should_restore() {
+  local dest="${1:-}"
+  case "$dest" in
+    workbench-*)
+      [[ "$THEME_SLUG" < "$dest" ]]
+      ;;
+    *)
+      return 0
+      ;;
+  esac
+}
 THEME_FONTS="$HOME/.config/omarchy/themes/$THEME_SLUG/fonts"
 USER_FONTS="$HOME/.local/share/fonts/topaz-unicode"
 STATE="${XDG_STATE_HOME:-$HOME/.local/state}/omarchy/workbench-1.3-font.state"
@@ -230,6 +242,6 @@ restore_previous() {
 if [[ $THEME == "$THEME_SLUG" ]]; then
   save_previous
   apply_topaz
-else
+elif should_restore "$THEME"; then
   restore_previous
 fi
