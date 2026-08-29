@@ -1,0 +1,13 @@
+resize_algorithm = none
+hotspot_x = 0.312500
+hotspot_y = 0.312500
+define_size = 32, 32.png
+define_override = alias
+define_override = copy
+define_override = dnd-copy
+define_override = dnd-link
+define_override = grab
+define_override = hand1
+define_override = hand2
+define_override = link
+define_override = openhand

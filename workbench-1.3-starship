@@ -1,0 +1,28 @@
+#!/bin/bash
+# Swap Starship to the Workbench 1.3 prompt while this theme is current.
+
+THEME="${1:-}"
+THEME_SLUG="workbench-1.3"
+SRC="$HOME/.config/omarchy/themes/$THEME_SLUG/starship.toml"
+DEST="$HOME/.config/starship.toml"
+BACKUP="${XDG_STATE_HOME:-$HOME/.local/state}/omarchy/workbench-1.3-starship.toml.bak"
+MARKER="omarchy-workbench-1.3"
+
+ours() {
+  [[ -f $DEST ]] && grep -q "$MARKER" "$DEST"
+}
+
+if [[ $THEME == "$THEME_SLUG" ]]; then
+  [[ -f $SRC ]] || exit 0
+  mkdir -p "$(dirname "$BACKUP")"
+  if [[ -f $DEST ]] && ! ours; then
+    cp "$DEST" "$BACKUP"
+  fi
+  cp "$SRC" "$DEST"
+else
+  if [[ -f $BACKUP ]]; then
+    mv "$BACKUP" "$DEST"
+  elif ours; then
+    rm -f "$DEST"
+  fi
+fi

@@ -1,0 +1,135 @@
+# Workbench 1.3 shell chrome: opaque Intuition windows on a blue screen.
+
+[bar]
+background       = "#FFFFFF"
+background-alpha = 1.0
+text             = "#0055AA"
+active           = "#FF8800"
+scale-with-font  = true
+size-horizontal  = 26
+size-vertical    = 28
+
+[hyprland]
+active-border            = "#FF8800"
+active-border-foreground = "#FF8800"
+
+[controls]
+normal-color        = "#000000"
+normal-fill-alpha   = 0.0
+normal-border       = "#000000"
+normal-border-width = 2
+normal-border-alpha = 1.0
+
+hover-cursor-color        = "#000000"
+hover-cursor-fill-alpha   = 0.0
+hover-cursor-border       = "#FF8800"
+hover-cursor-border-width = 2
+hover-cursor-border-alpha = 1.0
+
+focus-color        = "#000000"
+focus-fill-alpha   = 0.0
+focus-border       = "#FF8800"
+focus-border-width = 2
+focus-border-alpha = 1.0
+
+selected-color        = "#FF8800"
+selected-fill-alpha   = 0.0
+selected-border       = "#FF8800"
+selected-border-width = 2
+selected-border-alpha = 1.0
+
+pressed-fill-alpha   = 0.0
+selection-fill-alpha = 1.0
+
+[spacing]
+scale = 1.0
+scale-with-font = true
+
+[font]
+base-size = 16
+
+[popups]
+background       = "#FFFFFF"
+background-alpha = 1.0
+text             = "#000000"
+border           = "#000000"
+border-alpha     = 1.0
+border-width     = 2
+
+[tooltip]
+background       = "#FFFFFF"
+background-alpha = 1.0
+text             = "#000000"
+border           = "#000000"
+border-alpha     = 1.0
+
+[notifications]
+background       = "#FFFFFF"
+background-alpha = 1.0
+text             = "#000000"
+border           = "#FF8800"
+border-alpha     = 1.0
+border-width     = 2
+countdown        = "#FF8800"
+
+[launcher]
+background                = "#FFFFFF"
+background-alpha          = 1.0
+text                      = "#000000"
+border                    = "#000000"
+border-alpha              = 1.0
+scrim                     = "#000000"
+scrim-alpha               = 0.35
+selected-background       = "#FF8800"
+selected-background-alpha = 1.0
+selected-text             = "#000000"
+selected-border           = "#000000"
+selected-border-alpha     = 1.0
+
+[menu]
+background                = "#FFFFFF"
+background-alpha          = 1.0
+text                      = "#000000"
+border                    = "#000000"
+border-alpha              = 1.0
+scrim                     = "#000000"
+scrim-alpha               = 0.35
+selected-background       = "#FF8800"
+selected-background-alpha = 1.0
+selected-text             = "#000000"
+selected-border           = "#000000"
+selected-border-alpha     = 1.0
+
+[polkit]
+background       = "#FFFFFF"
+background-alpha = 1.0
+text             = "#000000"
+text-error       = "#DD2222"
+border           = "#000000"
+border-error     = "#DD2222"
+border-alpha     = 1.0
+scrim            = "#0055AA"
+scrim-alpha      = 0.45
+accent           = "#FF8800"
+
+[lock]
+background       = "#FFFFFF"
+background-alpha = 1.0
+text             = "#000000"
+placeholder      = "#0055AA"
+text-error       = "#DD2222"
+border           = "#000000"
+border-active    = "#FF8800"
+border-error     = "#DD2222"
+border-alpha     = 1.0
+selection        = "#FF8800"
+selection-alpha  = 1.0
+
+[image-picker]
+scrim                   = "#0055AA"
+scrim-alpha             = 0.5
+text                    = "#FFFFFF"
+selected-border         = "#FF8800"
+selected-border-alpha   = 1.0
+unselected-border       = "#000000"
+unselected-border-alpha = 1.0

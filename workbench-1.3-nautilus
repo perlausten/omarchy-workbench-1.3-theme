@@ -1,0 +1,100 @@
+#!/bin/bash
+# Theme all GTK3/GTK4 apps with Workbench 1.3 colors and Topaz while
+# this theme is current. Libadwaita only reads gtk.css at process start.
+
+THEME="${1:-}"
+THEME_SLUG="workbench-1.3"
+SRC="$HOME/.config/omarchy/themes/$THEME_SLUG"
+GTK4_DIR="$HOME/.config/gtk-4.0"
+GTK3_DIR="$HOME/.config/gtk-3.0"
+GTK4_CSS="$GTK4_DIR/gtk.css"
+GTK3_CSS="$GTK3_DIR/gtk.css"
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/omarchy"
+BACKUP4="$STATE/workbench-1.3-gtk4.css.bak"
+BACKUP3="$STATE/workbench-1.3-gtk3.css.bak"
+MARKER="omarchy-workbench-1.3"
+
+ours() {
+  local file="$1"
+  [[ -f $file ]] && grep -q "$MARKER" "$file"
+}
+
+write_settings() {
+  local dir="$1"
+  mkdir -p "$dir"
+  cat >"$dir/settings.ini" <<'EOF'
+[Settings]
+gtk-font-name=Topaz Unicode KS13 16
+gtk-cursor-theme-name=Workbench-1.3
+gtk-cursor-theme-size=32
+gtk-icon-theme-name=Workbench-1.3
+gtk-application-prefer-dark-theme=true
+EOF
+}
+
+install_css() {
+  local src="$1" dest="$2" bak="$3"
+  mkdir -p "$(dirname "$dest")" "$(dirname "$bak")"
+  if [[ -f $dest ]] && ! ours "$dest"; then
+    cp "$dest" "$bak"
+  fi
+  cp "$src" "$dest"
+}
+
+restore_css() {
+  local dest="$1" bak="$2"
+  if [[ -f $bak ]]; then
+    mkdir -p "$(dirname "$dest")"
+    mv "$bak" "$dest"
+  elif ours "$dest"; then
+    rm -f "$dest"
+  fi
+}
+
+restart_gtk_apps() {
+  local reopen=0
+  python3 - <<'PY'
+import json, subprocess, sys
+try:
+    clients = json.loads(subprocess.check_output(["hyprctl", "-j", "clients"]))
+except Exception:
+    raise SystemExit(1)
+for client in clients:
+    cls = (client.get("class") or "") + " " + (client.get("initialClass") or "")
+    if "Nautilus" in cls or "nautilus" in cls:
+        raise SystemExit(0)
+raise SystemExit(1)
+PY
+  reopen=$?
+  nautilus --quit >/dev/null 2>&1 || true
+  # File chooser / GTK settings daemons pick up CSS on next launch.
+  if [[ $reopen -eq 0 ]]; then
+    if command -v uwsm-app >/dev/null; then
+      uwsm-app -- nautilus >/dev/null 2>&1 &
+    else
+      nautilus >/dev/null 2>&1 &
+    fi
+  fi
+}
+
+apply_gtk() {
+  [[ -f $SRC/gtk-4.css ]] || return 1
+  install_css "$SRC/gtk-4.css" "$GTK4_CSS" "$BACKUP4"
+  [[ -f $SRC/gtk-3.css ]] && install_css "$SRC/gtk-3.css" "$GTK3_CSS" "$BACKUP3"
+  write_settings "$GTK4_DIR"
+  write_settings "$GTK3_DIR"
+  restart_gtk_apps
+}
+
+restore_gtk() {
+  restore_css "$GTK4_CSS" "$BACKUP4"
+  restore_css "$GTK3_CSS" "$BACKUP3"
+  rm -f "$GTK4_DIR/settings.ini" "$GTK3_DIR/settings.ini"
+  restart_gtk_apps
+}
+
+if [[ $THEME == "$THEME_SLUG" ]]; then
+  apply_gtk
+else
+  restore_gtk
+fi

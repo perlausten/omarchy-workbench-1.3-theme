@@ -1,0 +1,171 @@
+/* omarchy-workbench-1.3
+   All GTK4 / libadwaita apps. Kickstart 1.3 pens + Topaz. */
+
+:root {
+  --accent-bg-color: #FF8800;
+  --accent-fg-color: #000000;
+  --accent-color: #FF8800;
+
+  --destructive-bg-color: #DD2222;
+  --destructive-fg-color: #FFFFFF;
+  --destructive-color: #DD2222;
+
+  --success-bg-color: #0055AA;
+  --success-fg-color: #FFFFFF;
+  --success-color: #FFFFFF;
+
+  --warning-bg-color: #FF8800;
+  --warning-fg-color: #000000;
+  --warning-color: #FF8800;
+
+  --error-bg-color: #DD2222;
+  --error-fg-color: #FFFFFF;
+  --error-color: #DD2222;
+
+  --window-bg-color: #0055AA;
+  --window-fg-color: #FFFFFF;
+  --window-radius: 0px;
+
+  --view-bg-color: #0055AA;
+  --view-fg-color: #FFFFFF;
+
+  --headerbar-bg-color: #FF8800;
+  --headerbar-fg-color: #000000;
+  --headerbar-border-color: #000000;
+  --headerbar-backdrop-color: #FFFFFF;
+  --headerbar-shade-color: rgb(0 0 0 / 100%);
+  --headerbar-darker-shade-color: rgb(0 0 0 / 100%);
+
+  --sidebar-bg-color: #003388;
+  --sidebar-fg-color: #FFFFFF;
+  --sidebar-backdrop-color: #003388;
+  --sidebar-border-color: #000000;
+  --sidebar-shade-color: rgb(0 0 0 / 40%);
+
+  --secondary-sidebar-bg-color: #003388;
+  --secondary-sidebar-fg-color: #FFFFFF;
+  --secondary-sidebar-backdrop-color: #003388;
+  --secondary-sidebar-border-color: #000000;
+  --secondary-sidebar-shade-color: rgb(0 0 0 / 40%);
+
+  --card-bg-color: #FFFFFF;
+  --card-fg-color: #000000;
+  --card-shade-color: rgb(0 0 0 / 40%);
+
+  --dialog-bg-color: #FFFFFF;
+  --dialog-fg-color: #000000;
+
+  --popover-bg-color: #FFFFFF;
+  --popover-fg-color: #000000;
+  --popover-shade-color: rgb(0 0 0 / 25%);
+
+  --overview-bg-color: #0055AA;
+  --overview-fg-color: #FFFFFF;
+  --thumbnail-bg-color: #003388;
+  --thumbnail-fg-color: #FFFFFF;
+
+  --active-toggle-bg-color: #FF8800;
+  --active-toggle-fg-color: #000000;
+
+  --shade-color: rgb(0 0 0 / 40%);
+  --scrollbar-outline-color: #000000;
+
+  --document-font-family: "Topaz Unicode KS13";
+  --document-font-size: 16px;
+  --monospace-font-family: "Topaz Unicode KS13";
+  --monospace-font-size: 16px;
+}
+
+window, .background {
+  font-family: "Topaz Unicode KS13", monospace;
+  font-size: 16px;
+  border-radius: 0;
+}
+
+window:backdrop {
+  --headerbar-bg-color: #FFFFFF;
+  --headerbar-fg-color: #0055AA;
+  --headerbar-backdrop-color: #FFFFFF;
+}
+
+headerbar, .top-bar, .toolbar, searchbar {
+  font-family: "Topaz Unicode KS13", monospace;
+  font-size: 16px;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+window:backdrop headerbar,
+window:backdrop .top-bar {
+  background-color: #FFFFFF;
+  color: #0055AA;
+}
+
+.sidebar, .navigation-sidebar, .sidebar-pane {
+  font-family: "Topaz Unicode KS13", monospace;
+  font-size: 16px;
+  background-color: #003388;
+  color: #FFFFFF;
+  border-radius: 0;
+}
+
+.view, .icon-view, .list-view, gridview, listview,
+textview, textview > text {
+  background-color: #0055AA;
+  color: #FFFFFF;
+  font-family: "Topaz Unicode KS13", monospace;
+  font-size: 16px;
+  border-radius: 0;
+}
+
+:selected,
+.view:selected,
+listview row:selected,
+gridview child:selected,
+.navigation-sidebar row:selected {
+  background-color: #FF8800;
+  color: #000000;
+}
+
+button, entry, .path-bar {
+  font-family: "Topaz Unicode KS13", monospace;
+  font-size: 16px;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+popover, .menu, .popup, menu {
+  font-family: "Topaz Unicode KS13", monospace;
+  font-size: 16px;
+  background-color: #FFFFFF;
+  color: #000000;
+  border: 2px solid #000000;
+  border-radius: 0;
+}
+
+popover modelbutton:hover,
+popover modelbutton:checked,
+.menu menuitem:hover {
+  background-color: #FF8800;
+  color: #000000;
+  border-radius: 0;
+}
+
+scrollbar slider {
+  background-color: #FFFFFF;
+  border: 1px solid #000000;
+  border-radius: 0;
+  min-width: 12px;
+  min-height: 12px;
+}
+
+scrollbar slider:hover,
+scrollbar slider:active {
+  background-color: #FF8800;
+}
+
+.card, .boxed-list {
+  border-radius: 0;
+  box-shadow: none;
+  border: 1px solid #000000;
+}

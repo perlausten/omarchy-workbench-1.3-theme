@@ -1,0 +1,82 @@
+#!/bin/bash
+# Install Workbench 1.3 cursor pack + file icons, and restore the previous
+# pointer/icon theme when leaving.
+
+THEME="${1:-}"
+THEME_SLUG="workbench-1.3"
+NAME="Workbench-1.3"
+BUNDLE="$HOME/.config/omarchy/themes/$THEME_SLUG/icons"
+DEST="$HOME/.local/share/icons/$NAME"
+DEFAULT_INDEX="$HOME/.local/share/icons/default/index.theme"
+DEFAULT_BAK="${XDG_STATE_HOME:-$HOME/.local/state}/omarchy/workbench-1.3-default-cursor.index.bak"
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/omarchy/workbench-1.3-icons.state"
+
+read_kv() {
+  awk -F= -v key="$1" '$1 == key { sub(/^[^=]+=/, ""); print; exit }' "$2" 2>/dev/null
+}
+
+ensure_icons() {
+  mkdir -p "$DEST"
+  if [[ -d $BUNDLE/cursors ]]; then
+    rm -rf "$DEST"
+    mkdir -p "$(dirname "$DEST")"
+    cp -a "$BUNDLE" "$DEST"
+  fi
+  gtk-update-icon-cache -f "$DEST" >/dev/null 2>&1 || true
+}
+
+save_previous() {
+  local cursor icons size
+  cursor=$(gsettings get org.gnome.desktop.interface cursor-theme 2>/dev/null | tr -d "'")
+  icons=$(gsettings get org.gnome.desktop.interface icon-theme 2>/dev/null | tr -d "'")
+  size=$(gsettings get org.gnome.desktop.interface cursor-size 2>/dev/null)
+  case "$cursor" in
+    Workbench-1.3 | "$NAME") [[ -f $STATE ]] && return 0 ;;
+  esac
+  case "$icons" in
+    Workbench-1.3 | "$NAME") icons="Yaru-blue" ;;
+  esac
+  mkdir -p "$(dirname "$STATE")"
+  cat >"$STATE" <<EOF
+cursor=$cursor
+icons=$icons
+size=$size
+EOF
+}
+
+apply_icons() {
+  ensure_icons
+  mkdir -p "$(dirname "$DEFAULT_INDEX")" "$(dirname "$DEFAULT_BAK")"
+  if [[ -f $DEFAULT_INDEX ]] && ! grep -q "Inherits=$NAME" "$DEFAULT_INDEX"; then
+    cp "$DEFAULT_INDEX" "$DEFAULT_BAK"
+  fi
+  printf '[Icon Theme]\nInherits=%s\n' "$NAME" >"$DEFAULT_INDEX"
+  gsettings set org.gnome.desktop.interface icon-theme "$NAME"
+  gsettings set org.gnome.desktop.interface cursor-theme "$NAME"
+  gsettings set org.gnome.desktop.interface cursor-size 32
+  hyprctl setcursor "$NAME" 32 >/dev/null 2>&1 || true
+}
+
+restore_icons() {
+  [[ -f $STATE ]] || return 0
+  local cursor icons size
+  cursor=$(read_kv cursor "$STATE")
+  icons=$(read_kv icons "$STATE")
+  size=$(read_kv size "$STATE")
+  [[ -n $cursor && $cursor != "$NAME" ]] && gsettings set org.gnome.desktop.interface cursor-theme "$cursor"
+  [[ -n $icons && $icons != "$NAME" ]] && gsettings set org.gnome.desktop.interface icon-theme "$icons"
+  [[ -n $size ]] && gsettings set org.gnome.desktop.interface cursor-size "$size"
+  if [[ -f $DEFAULT_BAK ]]; then
+    mv "$DEFAULT_BAK" "$DEFAULT_INDEX"
+  else
+    rm -f "$DEFAULT_INDEX"
+  fi
+  hyprctl setcursor "${cursor:-Adwaita}" "${size:-24}" >/dev/null 2>&1 || true
+}
+
+if [[ $THEME == "$THEME_SLUG" ]]; then
+  save_previous
+  apply_icons
+else
+  restore_icons
+fi

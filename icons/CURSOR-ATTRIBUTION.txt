@@ -1,0 +1,6 @@
+Mouse cursors are adapted from:
+  sonninnos / Amiga-Workbench-Mouse-Cursors
+  https://github.com/sonninnos/Amiga-Workbench-Mouse-Cursors
+  Workbench 1.3 Normal set
+License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+Converted from Windows .cur to XCursor for Hyprland/GTK.

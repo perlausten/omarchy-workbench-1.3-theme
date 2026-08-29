@@ -1,0 +1,46 @@
+# omarchy-workbench-1.3
+# Same Omarchy modules, Kickstart 1.3 pens. Prompt character is AmigaShell ">".
+
+add_newline = true
+command_timeout = 200
+palette = "workbench13"
+format = "[$directory$git_branch$git_status]($style)$character"
+
+[palettes.workbench13]
+orange = "#FF8800"
+white = "#FFFFFF"
+red = "#DD2222"
+blue = "#0055AA"
+muted = "#AABBCC"
+
+[character]
+success_symbol = "[>](bold orange)"
+error_symbol = "[!](bold red)"
+
+[directory]
+style = "bold white"
+truncation_length = 2
+truncation_symbol = ".../"
+repo_root_style = "bold orange"
+repo_root_format = "[$repo_root]($repo_root_style)[$path]($style)[$read_only]($read_only_style) "
+read_only = " ro"
+read_only_style = "red"
+
+[git_branch]
+format = "[$branch]($style) "
+style = "italic orange"
+
+[git_status]
+format     = '[$all_status]($style)'
+style      = "orange"
+ahead      = "^${count} "
+diverged   = "^${ahead_count}v${behind_count} "
+behind     = "v${count} "
+conflicted = "! "
+up_to_date = "* "
+untracked  = "? "
+modified   = "* "
+stashed    = ""
+staged     = ""
+renamed    = ""
+deleted    = ""

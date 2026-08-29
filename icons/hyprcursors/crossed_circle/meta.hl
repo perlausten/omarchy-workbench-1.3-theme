@@ -1,0 +1,9 @@
+resize_algorithm = none
+hotspot_x = 0.312500
+hotspot_y = 0.312500
+define_size = 32, 32.png
+define_override = circle
+define_override = dnd-no-drop
+define_override = no-drop
+define_override = not-allowed
+define_override = pirate

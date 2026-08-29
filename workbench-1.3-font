@@ -1,0 +1,235 @@
+#!/bin/bash
+# Apply Kickstart 1.3 Topaz while Workbench 1.3 is current; restore the
+# previous monospace family and terminal sizes on any other theme.
+
+THEME="${1:-}"
+TOPAZ="Topaz Unicode KS13"
+TOPAZ_SIZE=16
+THEME_SLUG="workbench-1.3"
+THEME_FONTS="$HOME/.config/omarchy/themes/$THEME_SLUG/fonts"
+USER_FONTS="$HOME/.local/share/fonts/topaz-unicode"
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/omarchy/workbench-1.3-font.state"
+
+ensure_font() {
+  if fc-list "$TOPAZ" | grep -q .; then
+    return 0
+  fi
+
+  mkdir -p "$USER_FONTS"
+  if [[ -d $THEME_FONTS ]]; then
+    cp -n "$THEME_FONTS"/*.ttf "$THEME_FONTS"/LICENSE "$USER_FONTS/" 2>/dev/null || true
+  fi
+  fc-cache -f "$USER_FONTS" >/dev/null 2>&1 || fc-cache -f >/dev/null 2>&1 || true
+}
+
+current_family() {
+  omarchy font current 2>/dev/null | head -n1
+}
+
+read_kv() {
+  awk -F= -v key="$1" '$1 == key { sub(/^[^=]+=/, ""); print; exit }' "$2" 2>/dev/null
+}
+
+alacritty_size() {
+  awk '/^size[[:space:]]*=/ { print $3; exit }' "$HOME/.config/alacritty/alacritty.toml" 2>/dev/null
+}
+
+kitty_size() {
+  awk '/^font_size / { print $2; exit }' "$HOME/.config/kitty/kitty.conf" 2>/dev/null
+}
+
+ghostty_size() {
+  awk '/^font-size[[:space:]]*=/ { print $3; exit }' "$HOME/.config/ghostty/config" 2>/dev/null
+}
+
+foot_size() {
+  awk -F'size=' '/^font=/ { print $2; exit }' "$HOME/.config/foot/foot.ini" 2>/dev/null
+}
+
+set_alacritty_size() {
+  local size="$1"
+  [[ -f $HOME/.config/alacritty/alacritty.toml ]] || return 0
+  sed -i "s/^size = .*/size = $size/" "$HOME/.config/alacritty/alacritty.toml"
+}
+
+set_alacritty_faces() {
+  local family="$1"
+  local italic_style="$2"
+  [[ -f $HOME/.config/alacritty/alacritty.toml ]] || return 0
+  sed -i \
+    -e "s/^normal = .*/normal = { family = \"$family\", style = \"Regular\" }/" \
+    -e "s/^bold = .*/bold = { family = \"$family\", style = \"Bold\" }/" \
+    -e "s/^italic = .*/italic = { family = \"$family\", style = \"$italic_style\" }/" \
+    "$HOME/.config/alacritty/alacritty.toml"
+}
+
+set_kitty_size() {
+  local size="$1"
+  [[ -f $HOME/.config/kitty/kitty.conf ]] || return 0
+  sed -i "s/^font_size .*/font_size $size/" "$HOME/.config/kitty/kitty.conf"
+}
+
+set_ghostty_size() {
+  local size="$1"
+  [[ -f $HOME/.config/ghostty/config ]] || return 0
+  sed -i "s/^font-size = .*/font-size = $size/" "$HOME/.config/ghostty/config"
+}
+
+set_foot_font() {
+  local family="$1"
+  local size="$2"
+  [[ -f $HOME/.config/foot/foot.ini ]] || return 0
+  sed -i "s/^font=.*/font=$family:size=$size/" "$HOME/.config/foot/foot.ini"
+}
+
+write_fontconfig() {
+  local family="$1"
+  local topaz_rules=""
+  if [[ $family == "$TOPAZ" ]]; then
+    topaz_rules=$(
+      cat <<EOF
+
+  <alias>
+    <family>Topaz Unicode KS13</family>
+    <accept>
+      <family>JetBrainsMono Nerd Font</family>
+      <family>Noto Color Emoji</family>
+    </accept>
+  </alias>
+
+  <match target="font">
+    <test name="family">
+      <string>Topaz Unicode KS13</string>
+    </test>
+    <edit name="antialias" mode="assign"><bool>false</bool></edit>
+    <edit name="hintstyle" mode="assign"><const>hintnone</const></edit>
+    <edit name="rgba" mode="assign"><const>none</const></edit>
+    <edit name="lcdfilter" mode="assign"><const>lcdnone</const></edit>
+  </match>
+EOF
+    )
+  fi
+
+  mkdir -p "$HOME/.config/fontconfig"
+  cat >"$HOME/.config/fontconfig/fonts.conf" <<EOF
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+<fontconfig>
+  <match target="pattern">
+    <test name="family" qual="any">
+      <string>monospace</string>
+    </test>
+    <edit name="family" mode="prepend_first" binding="strong">
+      <string>$family</string>
+    </edit>
+  </match>
+  <match target="pattern">
+    <test name="family" qual="any">
+      <string>sans-serif</string>
+    </test>
+    <edit name="family" mode="prepend_first" binding="strong">
+      <string>$family</string>
+    </edit>
+  </match>
+$topaz_rules
+</fontconfig>
+EOF
+}
+
+save_previous() {
+  mkdir -p "$(dirname "$STATE")"
+  if [[ -f $STATE ]] && grep -q '^ui_font=' "$STATE"; then
+    return 0
+  fi
+
+  local family
+  family=$(current_family)
+  case "$family" in
+    *Topaz*) family="JetBrainsMono Nerd Font" ;;
+  esac
+  [[ -n $family ]] || family="JetBrainsMono Nerd Font"
+
+  if [[ -f $STATE ]]; then
+    cat >>"$STATE" <<EOF
+ui_font=$(gsettings get org.gnome.desktop.interface font-name 2>/dev/null | tr -d "'")
+document_font=$(gsettings get org.gnome.desktop.interface document-font-name 2>/dev/null | tr -d "'")
+antialias=$(gsettings get org.gnome.desktop.interface font-antialiasing 2>/dev/null | tr -d "'")
+EOF
+    return 0
+  fi
+
+  cat >"$STATE" <<EOF
+family=$family
+alacritty_size=$(alacritty_size)
+kitty_size=$(kitty_size)
+ghostty_size=$(ghostty_size)
+foot_size=$(foot_size)
+ui_font=$(gsettings get org.gnome.desktop.interface font-name 2>/dev/null | tr -d "'")
+document_font=$(gsettings get org.gnome.desktop.interface document-font-name 2>/dev/null | tr -d "'")
+antialias=$(gsettings get org.gnome.desktop.interface font-antialiasing 2>/dev/null | tr -d "'")
+EOF
+}
+
+apply_topaz() {
+  ensure_font
+  if ! fc-list | grep -Fqi -- "$TOPAZ"; then
+    echo "Topaz Unicode KS13 is not installed" >&2
+    return 1
+  fi
+
+  omarchy font set "$TOPAZ"
+  set_alacritty_faces "$TOPAZ" "Regular"
+  set_alacritty_size "$TOPAZ_SIZE"
+  set_kitty_size "$TOPAZ_SIZE"
+  set_ghostty_size "$TOPAZ_SIZE"
+  set_foot_font "$TOPAZ" "$TOPAZ_SIZE"
+  write_fontconfig "$TOPAZ"
+  gsettings set org.gnome.desktop.interface font-name "$TOPAZ $TOPAZ_SIZE"
+  gsettings set org.gnome.desktop.interface document-font-name "$TOPAZ $TOPAZ_SIZE"
+  gsettings set org.gnome.desktop.interface monospace-font-name "$TOPAZ $TOPAZ_SIZE"
+  gsettings set org.gnome.desktop.interface font-antialiasing "none"
+  fc-cache -f >/dev/null 2>&1 || true
+  omarchy restart terminal >/dev/null 2>&1 || true
+  omarchy restart shell >/dev/null 2>&1 || true
+}
+
+restore_previous() {
+  [[ -f $STATE ]] || return 0
+
+  local family alacritty kitty ghostty foot
+  family=$(read_kv family "$STATE")
+  alacritty=$(read_kv alacritty_size "$STATE")
+  kitty=$(read_kv kitty_size "$STATE")
+  ghostty=$(read_kv ghostty_size "$STATE")
+  foot=$(read_kv foot_size "$STATE")
+
+  [[ -n $family ]] || return 0
+  case "$family" in
+    *Topaz*) return 0 ;;
+  esac
+
+  omarchy font set "$family"
+  set_alacritty_faces "$family" "Italic"
+  [[ -n $alacritty ]] && set_alacritty_size "$alacritty"
+  [[ -n $kitty ]] && set_kitty_size "$kitty"
+  [[ -n $ghostty ]] && set_ghostty_size "$ghostty"
+  [[ -n $foot ]] && set_foot_font "$family" "$foot"
+  local ui_font document_font antialias
+  ui_font=$(read_kv ui_font "$STATE")
+  document_font=$(read_kv document_font "$STATE")
+  antialias=$(read_kv antialias "$STATE")
+  [[ -n $ui_font && $ui_font != *Topaz* ]] && gsettings set org.gnome.desktop.interface font-name "$ui_font"
+  [[ -n $document_font && $document_font != *Topaz* ]] && gsettings set org.gnome.desktop.interface document-font-name "$document_font"
+  local mono_gs
+  mono_gs=$(read_kv mono_gsettings "$STATE")
+  [[ -n $mono_gs && $mono_gs != *Topaz* ]] && gsettings set org.gnome.desktop.interface monospace-font-name "$mono_gs"
+  [[ -n $antialias ]] && gsettings set org.gnome.desktop.interface font-antialiasing "$antialias"
+  omarchy restart terminal >/dev/null 2>&1 || true
+}
+
+if [[ $THEME == "$THEME_SLUG" ]]; then
+  save_previous
+  apply_topaz
+else
+  restore_previous
+fi

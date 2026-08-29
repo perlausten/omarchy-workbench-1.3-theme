@@ -1,0 +1,13 @@
+resize_algorithm = none
+hotspot_x = 0.312500
+hotspot_y = 0.312500
+define_size = 32, 32.png
+define_override = col-resize
+define_override = e-resize
+define_override = ew-resize
+define_override = h_double_arrow
+define_override = left_side
+define_override = right_side
+define_override = size_hor
+define_override = split_h
+define_override = w-resize

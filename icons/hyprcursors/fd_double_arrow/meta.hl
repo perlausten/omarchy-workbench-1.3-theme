@@ -1,0 +1,10 @@
+resize_algorithm = none
+hotspot_x = 0.312500
+hotspot_y = 0.312500
+define_size = 32, 32.png
+define_override = bottom_left_corner
+define_override = ne-resize
+define_override = nesw-resize
+define_override = size_bdiag
+define_override = sw-resize
+define_override = top_right_corner
